@@ -43,6 +43,8 @@ h1 span{color:var(--saffron)}
 .stats{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:18px;font-variant-numeric:tabular-nums}
 .stats b{font-family:var(--display);font-size:22px;display:block;color:var(--ink)}
 .stats div{color:var(--muted);font-size:14px}
+.gattr{font-size:13px;color:var(--muted);margin:10px 0 0}
+.gsrc{font-size:12px;color:var(--muted)}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:12px}
 .controls{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px}
 .controls label,.form label{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted);font-weight:600;min-width:0}
@@ -125,6 +127,7 @@ footer p{max-width:75ch;margin:.4em 0}
   <h1 data-th="h1"></h1>
   <p class="lede" data-t="lede"></p>
   <div class="stats" id="stats"></div>
+  <p class="gattr" data-t="gattr"></p>
 </header>
 
 <div class="bar">
@@ -186,101 +189,101 @@ footer p{max-width:75ch;margin:.4em 0}
 </div>
 
 <script>
-// [name, area, cuisineAr, group, tier(1-4), rating, reviews, hoursAr, phone, mustAr, lat, lng, placeId, noteAr]
+// [name, area, cuisineAr, group, tier(1-4), rating, reviews, hoursAr, phone, mustAr, placeId, noteAr]
 const D=[
-["Social House","Downtown","مطبخ عالمي","International",2,4.9,17481,"9 ص – منتصف الليل (الجمعة–الأحد حتى 1 ص)","+971 52 972 5541","بيتزا الكمأة، سمك الدنيس، ستيك؛ تراس يطل على النافورة",25.1961549,55.2775404,"ChIJD5UHfYJCXz4RnIU14kEZeY4"],
-["DOORS","Downtown","تركي ومتوسطي","Turkish & Mediterranean",3,4.9,9665,"10 ص – 2 ص","+971 4 519 6000","ستيك واغيو، باستا، حلويات مع إطلالة على النافورة",25.196864,55.2760202,"ChIJ1ZaxSmRDXz4RsHWNt57cIKE"],
-["Maison De Curry","Downtown","آسيوي وعالمي","International",3,4.8,6012,"12 م – منتصف الليل (الجمعة–الأحد حتى 1 ص)","+971 52 406 6183","سلطعون بالكاري، تيراديتو السلمون",25.1950384,55.2761253,"ChIJH23ZiWlpXz4RDr6Vx0oRweE","بعض المراجعين ذكروا رسوماً إضافية في الفاتورة؛ تأكد من الأسعار والرسوم عند الحجز."],
-["GIA","Downtown","إيطالي","Turkish & Mediterranean",3,4.8,10394,"10 ص – منتصف الليل (الجمعة–الأحد حتى 1 ص)","+971 4 234 9986","باستا طازجة، مأكولات بحرية، جلسات تطل على النافورة",25.1971421,55.2759743,"ChIJP4pu3CloXz4RCCE2HYKmp5E"],
-["Urla Restaurant & Lounge","Downtown","تركي ومأكولات بحرية","Turkish & Mediterranean",4,4.6,3626,"3 م – 3 ص","+971 52 554 5997","مقبلات تركية، مأكولات بحرية، قائمة الغروب",25.1948808,55.2780235,"ChIJ5UL06HJpXz4Rv1ucO74FSXw"],
-["Tang Town","Downtown","صيني","Asian",3,4.9,1167,"10 ص – 1 ص","+971 54 279 7287","مطبخ صيني حاصل على نجمة ميشلان؛ مكونات مستوردة من الصين",25.1957175,55.2826812,"ChIJnX5G0bVpXz4RxGvyUtxIqak"],
-["The GrilllShack","Downtown","برغر ومشاوي","Burgers & grills",2,4.7,3955,"10:30 ص – منتصف الليل","+971 4 388 2382","سلايدرز الدجاج، أجنحة، دجاج مشوي",25.1965435,55.2796147,"ChIJraqqPihoXz4RWvvucaai_X4"],
-["High Joint (Dubai Mall)","Downtown","برغر","Burgers & grills",2,4.7,717,"11 ص – 11 م (الجمعة–السبت حتى منتصف الليل)","+971 4 576 3640","برغر الدجاج بسلطة المانجو الحارة، برغر High Jamz",25.1966488,55.2796279,"ChIJkXv3vi9pXz4RncgLFDgEhd4"],
-["Bosporus (The Beach, JBR)","Dubai Marina & JBR","تركي","Turkish & Mediterranean",2,4.9,25519,"8 ص – 12:30 ص","+971 4 380 8090","فطور السلطان، شيش طاووق، بقلاوة",25.0777805,55.1329548,"ChIJBVnSqVETXz4Rf_hy98gLP0c"],
-["Hurricane's Grill & Bar","Dubai Marina & JBR","ستيك هاوس","Burgers & grills",3,4.9,17323,"11 ص – 1 ص","+971 4 386 1613","ستيك، ضلوع مشوية، بصل مقلي؛ حصص كبيرة",25.0752282,55.1300725,"ChIJp750Z9wVXz4RbH8du0NzoFg"],
-["Blume Dubai Marina","Dubai Marina & JBR","مقهى وفطور تركي","Cafés & brunch",2,4.8,1091,"9 ص – منتصف الليل","+971 4 495 6888","فطور تركي، حلويات، تراس على المارينا",25.0854777,55.1476792,"ChIJ4X0cJQBrXz4Rh-GINYKC8uE"],
-["ILOLI","Dubai Marina & JBR","مطبخ عالمي","International",2,4.7,1204,"11 ص – 4 ص","+971 50 707 7917","فطور، وجبة غداء العمل على ممشى المارينا",25.0857253,55.144764,"ChIJ9_shU7RrXz4RfbTOif2idgs"],
-["Ronin (FIVE LUXE JBR)","Dubai Marina & JBR","ياباني","Asian",4,4.9,2049,"6 م – 2 ص","+971 4 275 9989","واغيو، سوشي مقرمش؛ حاصل على نجمة ميشلان",25.0815085,55.1362743,"ChIJPYQrCeEVXz4RB1klFLbWBLQ"],
-["ZETA Seventy Seven","Dubai Marina & JBR","مطعم على السطح","International",3,4.8,2613,"8 ص – منتصف الليل (الجمعة–السبت حتى 1 ص)","+971 4 879 8866","شاي العصر العائم؛ إطلالة من الطابق 77",25.0726827,55.1266445,"ChIJ20QsyRkTXz4RuqFyobQ9_PE"],
-["TakaHisa","Bluewaters","ياباني","Asian",4,4.8,1043,"12 م – 2 ص","+971 4 556 6688","أوماكاسي، شابو شابو واغيو، كاتسو ساندو",25.080669,55.1205489,"ChIJOSl7nyQVXz4RxM7gerbeh8g"],
-["Little Lahore","JLT","باكستاني","Indian & Pakistani",2,4.4,2058,"10 ص – منتصف الليل (السبت–الأحد من 8 ص)","+971 4 441 4270","فطور ديسي، بابري تشات، دجاج هاندي",25.0709787,55.1435329,"ChIJMRoMb7JsXz4RS8T66GNfgIQ"],
-["Al Safadi (Al Rigga)","Deira","لبناني","Arabic & Emirati",2,4.6,11140,"9 ص – 1 ص","+971 600 500601","حمص، كباب سيخ، شاورما",25.2632045,55.3250661,"ChIJk_FT689cXz4RgmjEHf8HKms"],
-["Rayyan Mandi","Deira","يمني وعربي","Arabic & Emirati",2,4.8,9309,"11 ص – 3 ص","+971 4 224 4434","مضبي دجاج، حنيذ لحم، لقيمات",25.2596646,55.3241873,"ChIJX_gAd8FdXz4RVdJN3hwojdI"],
-["Dencio's","Deira","فلبيني","Asian",2,4.8,6605,"11 ص – 1 ص (الجمعة–الأحد 10 ص – 2 ص)","+971 55 750 6329","سيسيغ، كريسبي باتا، هالو هالو",25.2649384,55.3285227,"ChIJ03GQs_pdXz4RePNklWQr9Lc"],
-["Landmark Restaurant (Al Rigga)","Deira","كيرالي وفلبيني","Indian & Pakistani",1,4.6,911,"مفتوح 24 ساعة","+971 54 252 9691","وجبة السمك بالقدر الفخاري (تشاتي تشورو)، سينيغانغ",25.2636142,55.3241363,"ChIJ25homExdXz4RTtvkpfzQcTY"],
-["Danial Star","Deira","بوفيه فارسي وهندي وبحري","International",2,4.5,2976,"12 م – 1 ص","+971 4 282 8942","بوفيه كبير مع إطلالة على الخور",25.2656825,55.309342,"ChIJAwBbcUVDXz4RY-taWT7fIqc"],
-["Dampa Seafood Grill","Deira","مأكولات بحرية فلبينية","Seafood",2,4.8,23695,"12 م – 11:30 م","+971 4 299 0884","سطل المأكولات البحرية بصوص الكاجون، حبار مشوي",25.2543136,55.3284054,"ChIJvYwf99hcXz4Rp4ci-Nb3bxg"],
-["Calicut Paragon","Karama","كيرالي","Indian & Pakistani",2,4.5,17566,"7 ص – 12:30 ص","+971 4 335 8700","برياني دجاج، كاري السمك بالمانجو، بروتا",25.2433325,55.3061149,"ChIJM8Dx5b9DXz4RK7vZ7UEKJbg"],
-["Amritsr","Karama","هندي شمالي","Indian & Pakistani",2,4.5,6851,"مفتوح 24 ساعة","+971 4 327 8622","دجاج بالزبدة، خبز نان، ربري؛ الفطور من 15 درهماً",25.2478378,55.3005519,"ChIJhQKYEs5DXz4RlCzY1nudp4s"],
-["Kudla House","Karama","منغلوري","Indian & Pakistani",1,4.7,325,"12 م – منتصف الليل","+971 4 552 8462","روبيان غي روست، كنعد على الصاج، نير دوسا",25.2495179,55.3073033,"ChIJV6Uvy2pDXz4Ra5_ALWpxrSM"],
-["Plantain Leaf","Karama","أندرا","Indian & Pakistani",1,4.6,253,"11:30 ص – 11:30 م","+971 4 257 8984","وجبات أندرا، برياني لحم حيدر أبادي",25.2492632,55.3035403,"ChIJNdypUwBDXz4RZeo5ZLUHFkw"],
-["BARAAK","Karama","هندي عربي مدمج","Indian & Pakistani",2,4.6,1424,"11 ص – 3 ص","+971 50 561 2345","مضبي دجاج، كوثو بروتا، كنافة برج",25.2504403,55.3024548,"ChIJP-lwcABDXz4RitQoIYRT7_E","المراجعات الأخيرة متباينة حول جودة الطعام."],
-["ChaCha Lahori","Karama","باكستاني","Indian & Pakistani",1,4.4,1674,"7 ص – 2 ص","+971 50 538 1399","فطور لاهوري، باية لحم، خبز كلتشا",25.2513903,55.302615,"ChIJYceGKZxDXz4R3gPPzp_qIB4"],
-["Sallet Al Sayad","Karama","مأكولات بحرية","Seafood",2,4.9,16509,"12 م – منتصف الليل","+971 4 335 5722","هامور، سمك النهاش الأحمر، روبيان جامبو",25.2360585,55.3035367,"ChIJ3SEyBtBCXz4Rdzj4zKqRLB8"],
-["De Fish","Karama","مأكولات بحرية كيرالية","Seafood",2,4.7,19104,"11 ص – 1 ص","+971 4 379 5638","سادية المأكولات البحرية، دنيس مشوي، كاري السلطعون",25.2479138,55.3041007,"ChIJbzPE0kxDXz4Rtr-eWoQ6r3k"],
-["Gul Khan","Oud Metha","باكستاني وأفغاني","Indian & Pakistani",2,4.4,3160,"11:30 ص – منتصف الليل","+971 56 388 4875","نالي تشابلي كباب، مشاوي مشكلة، ربري",25.2346914,55.3092773,"ChIJ50tGqHhDXz4Ra_zsnsXWwEw"],
-["Mogiya","Umm Hurair","ياباني","Asian",2,4.8,4136,"12 م – منتصف الليل","+971 58 578 2579","عرض السوشي المفتوح، رامن ميسو حار، واغيو A5",25.255794,55.3111445,"ChIJ1w_wNMtDXz4R2gpcqAlfASY"],
-["Al Khayma Heritage Restaurant","Al Fahidi","إماراتي","Arabic & Emirati",2,4.9,18590,"8 ص – 11 م","+971 55 180 2080","طبق المشاوي المشكلة، برياني لحم، جلسات في الفناء",25.2637706,55.3007685,"ChIJl6Wlj3JDXz4RiuVGW1AttdY"],
-["Arabian Tea House (Al Fahidi)","Al Fahidi","إماراتي ومقهى","Arabic & Emirati",2,4.8,20086,"7 ص – 11 م","+971 4 353 5071","فطور عربي، مشاوي مشكلة، الشاي الخاص",25.2633142,55.2997353,"ChIJsSfTxjlDXz4RDIGbnFqsAlo"],
-["Al Bait Al Qadeem","Al Ras","إماراتي وإيراني","Arabic & Emirati",2,4.5,1547,"8 ص – 10 م","+971 4 225 6111","برياني روبيان، سمك مشوي؛ حصص كبيرة",25.2687163,55.2950059,"ChIJM3jZ0kZDXz4R0HPlnOUziCs"],
-["Al Fanar (Al Seef)","Al Seef","مأكولات بحرية إماراتية","Arabic & Emirati",2,4.7,6189,"10 ص – 10:30 م","+971 4 396 6669","شوربة المأكولات البحرية، حلويات إماراتية؛ مدرج في دليل ميشلان",25.2642057,55.3052631,"ChIJGw72pFJDXz4R9nv8Knn8TWA"],
-["Tent Jumeirah (Al Seef)","Al Seef","عربي","Arabic & Emirati",2,4.5,871,"10 ص – 10 م (السبت–الأحد حتى 11 م)","+971 52 214 3703","تكا، شاورما دجاج، كرك على الخور",25.2631427,55.3067093,"ChIJk8g5PFFDXz4Rbui--UfWrJk"],
-["Skafos","Al Seef","متوسطي","Turkish & Mediterranean",2,4.7,2796,"5 م – 1 ص","+971 58 200 5850","طبق اللحوم المشكلة، كفتة اللحم بالطماطم، روبيان مشوي",25.2567263,55.3125647,"ChIJd8luc31DXz4Ry9lMtqshw7k"],
-["Creek City Restaurant","Bur Dubai","تركي وباكستاني","Indian & Pakistani",2,4.8,1720,"10 ص – 1 ص","+971 50 360 2599","بولاو لحم، دجاج على الفحم؛ إطلالة على الخور",25.2649634,55.2951408,"ChIJ_WASaHBDXz4Ryp_3gLH5kt8"],
-["Al Fanar (Festival City)","Festival City","إماراتي","Arabic & Emirati",2,4.6,9167,"9 ص – 10 م","+971 4 232 9966","جرجور مقلي، طبق المأكولات البحرية الإماراتي",25.2222422,55.3517022,"ChIJad3dmXtdXz4RZMX_GHSG81k"],
-["Arabian Tea House (Jumeirah)","Jumeirah","إماراتي ومقهى","Arabic & Emirati",2,4.9,8571,"7 ص – 11 م","+971 4 298 4559","حمص، فلافل، فطور مصري",25.1983872,55.2415158,"ChIJheuNzt9DXz4ROvCXu-iJrNs"],
-["Roasters Specialty Coffee (Al Wasl)","Jumeirah","قهوة مختصة وفطور","Cafés & brunch",2,4.8,3107,"9 ص – 10 م (الجمعة–الأحد حتى منتصف الليل)","+971 4 548 0707","قهوة محمصة في المكان، سطح بإطلالة على الأفق",25.196437,55.2460455,"ChIJQboZtNhfXz4RFvKQyydmFDg"],
-["Late Lounge","Jumeirah","مقهى وفطور","Cafés & brunch",2,4.8,4618,"8 ص – منتصف الليل (الخميس–السبت حتى 2 ص)","+971 50 771 9938","بيض بنديكت بالسلمون، ديرتي إسبريسو",25.1951817,55.2451122,"ChIJm9ICLvpDXz4RNwBQmCWeIHk"],
-["Sla Cafe","Jumeirah","مقهى","Cafés & brunch",2,4.7,959,"7 ص – 1:30 ص","+971 4 286 7136","لاتيه التيراميسو، فطور متأخر",25.2055911,55.2524297,"ChIJfUD46uNDXz4RJPsPCAfHfI0"],
-["Ores","Jumeirah","مقهى","Cafés & brunch",2,4.7,1058,"8 ص – 2 ص (السبت–الأحد حتى 3 ص)","+971 50 945 4111","سلطة الكيل بالفواكه، حلويات مقدمة بعناية",25.202369,55.250211,"ChIJh_3J4UNDXz4Rk_Q7lARKhYY"],
-["Karachi Grill","Jumeirah","باكستاني","Indian & Pakistani",2,4.7,12896,"11 ص – 2 ص (الجمعة–الأحد حتى 3 ص)","+971 4 344 7000","بوفيه الغداء، تشيز بوتي، ملاي تكا",25.2058339,55.2429884,"ChIJ5_QcLxRCXz4RY-FSCC1U6kc"],
-["FLAVE by Chef Wali","Jumeirah","برغر","Burgers & grills",2,4.9,7335,"11 ص – 3 ص","+971 52 738 2486","برغر بيليونير، سلطة الذرة، أجنحة",25.1946479,55.2457012,"ChIJr3PsY9hDXz4R1JWWr2On56U"],
-["BordoMavi Seafood","Jumeirah","مأكولات بحرية تركية","Seafood",3,4.7,1056,"12 م – 11:30 م","+971 56 508 5002","سمك طازج، خبز يُخبز في المطعم",25.2099279,55.2442945,"ChIJwxJaOsFDXz4Rrn-zGQ5fy8s"],
-["Allo Beirut (City Walk)","City Walk","لبناني","Arabic & Emirati",2,4.6,11786,"8 ص – منتصف الليل","+971 800 86234788","مشاوي مشكلة، حمص، شاورما",25.2079762,55.263845,"ChIJ8V5J9rxDXz4Rvs86mFM45fA"],
-["Sardina Seafood","Umm Suqeim","مأكولات بحرية","Seafood",2,4.9,5859,"12 م – 11 م (الخميس–السبت حتى منتصف الليل)","+971 4 339 0444","مأكولات بحرية بالكيلو، بياح مقلي، باستا المحار",25.140133,55.1913472,"ChIJAcE59ABCXz4R6R6oVPz1NB8"],
-["Eleven Green","Umm Suqeim","برغر","Burgers & grills",2,4.4,3288,"12:30 م – 1 ص (الجمعة–السبت حتى 2 ص)","","سماش برغر، بطاطس حارة",25.1446108,55.1986113,"ChIJd2cT4b9rXz4RxgcS-k-KMMA"],
-["Hot Bowl","Satwa","فلبيني","Asian",1,4.9,1141,"11 ص – 1 ص","+971 50 712 2808","أسياخ مشوية، إيساو، طبق مأكولات بحرية، هالو هالو",25.2303261,55.271838,"ChIJFRVhHwBDXz4RPufR2YRBPx8"],
-["Kanto Grilled","Satwa","مشاوي فلبينية","Asian",1,4.8,700,"6 ص – 1:30 ص","+971 50 274 2213","مشاوي فلبينية",25.2300543,55.2723646,"ChIJo6WlJvdDXz4R2V0T7sZU3fY"],
-["Moonrise","Satwa","قائمة تذوق للشيف","International",4,4.8,388,"الثلاثاء–السبت 6 م – 11:30 م","+971 50 697 2946","قائمة تذوق من 8 أطباق حول منضدة تتسع لـ15 شخصاً",25.2195235,55.2770644,"ChIJS6LLvexDXz4RUPTv3HNI7Pc","احجز مسبقاً؛ المقاعد محدودة ويبدأ التقديم للجميع في وقت واحد."],
-["Shawarma AlFarooj","Trade Centre","شاورما","Arabic & Emirati",1,4.4,2237,"12 م – 5 ص","+971 4 335 5723","شاورما لحم بخبز الصاج",25.2104004,55.2724659,"ChIJe5NHlU1DXz4RSn3yD-OwNoE"],
-["Bombay Borough","DIFC","هندي عصري","Indian & Pakistani",3,4.8,10130,"12 م – منتصف الليل (الجمعة حتى 1 ص)","+971 54 995 8296","برانش نهاية الأسبوع، بانير تكا مارواري، برياني",25.2139289,55.2823472,"ChIJjxN4B_tDXz4RLrBrwzc9Qew"],
-["UCHI","DIFC","إيزاكايا يابانية","Asian",3,4.8,476,"12 م – 1 ص (الخميس–السبت حتى 2 ص)","+971 4 298 5044","سوشي، قائمة ساكي",25.2139395,55.2823037,"ChIJtQHLct9DXz4R7EkzLwRDU3E"],
-["Sansation","DIFC","متوسطي","Turkish & Mediterranean",2,4.9,2450,"9 ص – 2:30 ص","+971 4 349 3518","أرز أصفر باللحم على طريقة المقلوبة، لفائف",25.21378,55.2781521,"ChIJE5mdEgBDXz4RvJ2bXPutUVc"],
-["Jospereno Steakhouse","DIFC","ستيك هاوس","Burgers & grills",2,4.8,3722,"11 ص – 1 ص","+971 52 420 6404","طبق ريب آي كيلو مع أرز (199 درهماً)، نخاع العظم",25.2038123,55.2755644,"ChIJDzeeUH1DXz4RoldvY_YTJ8M"],
-["ZEA","DIFC","مطبخ مدمج","International",3,4.9,583,"الثلاثاء–الأحد من 5 م (الأحد من 3 م)","+971 56 402 6633","عشاء متأخر؛ تراس يطل على برج خليفة",25.2085919,55.2765573,"ChIJe0d-1CtDXz4R5OJ3ltO3abM"],
-["Hutong","DIFC","صيني شمالي","Asian",4,4.7,1781,"12 م – 3:30 م، 6 م – منتصف الليل","+971 4 220 0868","بط بكين، ديم سوم",25.2157696,55.2806871,"ChIJW59ATBlDXz4RAT7XiQ1g7NU"],
-["MaKiRa","DIFC","رامن ياباني","Asian",2,4.8,1925,"الأحد–الثلاثاء 6 م – 11 م","+971 4 317 4515","رامن شو، غداء العمل (رامن ونصف لفافة)",25.2064494,55.2728966,"ChIJGee24n5DXz4RJzR2eqWvJhU","يظهر في Google أن أيام العمل محدودة؛ اتصل قبل الزيارة."],
-["Manna Smash Burgers","DIFC","برغر","Burgers & grills",2,5.0,103,"10 ص – 10 م (الجمعة–السبت حتى منتصف الليل)","+971 56 429 6007","سماش برغر",25.2132118,55.2804653,"ChIJF3-muTNDXz4RpNs2seaMozw"],
-["Vyne Restaurant","Business Bay","بوفيه متوسطي","Turkish & Mediterranean",2,4.9,4521,"6:30 ص – 10:30 م","+971 4 815 3002","بوفيه الفطور، محطة باستا حية",25.1780226,55.2682362,"ChIJE1bSVUtpXz4RkJxGOHkTKVY"],
-["Soul Kitchen","Business Bay","لبناني ولاتيني مدمج","International",3,4.6,1035,"الثلاثاء–السبت من 6 م","+971 4 836 0900","حمص بالتشيميتشوري، أريباس واغيو",25.1862102,55.2673784,"ChIJv9a9h41pXz4RujsiLoD5P6s"],
-["Batliwala & Co.","Business Bay","بارسي وأكلات شوارع مومباي","Indian & Pakistani",2,4.7,744,"11 ص – 2 ص","+971 50 272 8727","دانساك، بولاو التوت، غولا كالا خاتا",25.1865984,55.2803594,"ChIJ8X8W8OBpXz4R9N-ZCRcEViY"],
-["TABŪ","Business Bay","مطبخ آسيوي وصالة","Asian",3,4.6,1057,"الإثنين–السبت 6 م – 1 ص","+971 4 512 5555","تمبورا؛ أمسيات مع دي جي",25.1859949,55.2735753,"ChIJgw4-JltpXz4RVXCm-O7aulU"],
-["OCCO (Business Bay)","Business Bay","مطبخ عالمي","International",2,4.8,761,"7 ص – 3 ص","+971 56 430 5280","لفافة السلمون، شيشة، تراس يطل على القناة",25.1817145,55.2791466,"ChIJj3tOVlRpXz4RXeRJ3OxZBS4"],
-["Al Mashawi Al Halabya","Al Barsha","مشاوي سورية","Arabic & Emirati",2,4.8,33814,"8 ص – 3 ص","+971 600 586666","مشاوي مشكلة، دجاج على الفحم، كنافة بالجبن",25.1079676,55.1974851,"ChIJOYyRllZrXz4RFZ_i6EMfZoE"],
-["Shawarmary","Al Barsha","شاورما","Arabic & Emirati",1,4.6,4316,"12 م – 3 ص (الخميس–الأحد حتى 4 ص)","+971 4 575 3628","تشيكاري، بوكس صاج عربي، عصير طازج",25.1140931,55.1927302,"ChIJ_3YGDhVrXz4RrH1n48QnKPs"],
-["Allo Beirut (Hessa St)","Al Barsha","لبناني","Arabic & Emirati",2,4.4,10797,"9 ص – 3:30 ص","+971 800 86234788","فطور لبناني، حلاوة الجبن",25.0944394,55.1847671,"ChIJgTwUDYFrXz4RG32ONXOL1zg"],
-["Lola Taberna Española","Barsha Heights","إسباني","Turkish & Mediterranean",3,4.8,4474,"1 م – 1 ص","+971 4 247 6688","روبيان بالثوم، باتاتاس برافاس، باييلا المأكولات البحرية",25.0973627,55.174864,"ChIJdcx38c9rXz4RKtHRjWyyhek"],
-["Meat & Mackerel","Barsha Heights","كيرالي مدمج","Indian & Pakistani",2,4.8,4885,"11 ص – 11:30 م","+971 50 595 2269","ستيك لحم تيليتشيري، توست فرنسي بالتيراميسو",25.0990747,55.1752662,"ChIJz8tuPABrXz4RBQaCL0aiNSY"],
-["XU (Kempinski MoE)","Al Barsha","كانتوني","Asian",3,4.9,1123,"12 م – 4 م، 6 م – 1 ص","+971 4 394 6252","سمك القد الأسود بفلفل سيتشوان، لحم بالفلفل الأسود",25.1187616,55.1975632,"ChIJXccJWJxrXz4RGxapGB_sHJI"],
-["Korma Sutra","Al Barsha","مقهى ومطعم هندي","Indian & Pakistani",2,4.8,1402,"12 م – 2 ص (الجمعة–السبت حتى 3 ص)","+971 58 509 7219","مقبلات البانير، كرك، براوني على الصاج",25.1082841,55.2227273,"ChIJIRBOZZlrXz4R3h5-WBDz9G0"],
-["Burns Road","Al Barsha South","أكلات شوارع باكستانية","Indian & Pakistani",2,4.7,3126,"8:30 ص – منتصف الليل (الجمعة–السبت حتى 1 ص)","+971 54 266 8006","بن كباب، رول بالشطني، كراهي",25.0734174,55.2479909,"ChIJY9cUEABvXz4RWeuy_IFE5fw"],
-["Praia (FIVE Palm)","Palm Jumeirah","مطعم شاطئي","Seafood",3,4.9,3981,"11 ص – 3 ص","+971 58 869 8996","سمك مشوي، أسياخ السلمون، برغر واغيو",25.1036222,55.148063,"ChIJ0XGIejdrXz4Ri_hDwHgpzp4"],
-["Above Eleven","Palm Jumeirah","بيروفي ياباني","Asian",3,4.8,1028,"5 م – 1 ص (الجمعة–السبت حتى 2 ص)","+971 4 666 1420","باقة السوشي عند الغروب، سطح مفتوح",25.1070192,55.1457301,"ChIJz0NTDblrXz4R5nlONTqMt3I"],
-["CouCou","Palm Jumeirah","مطعم على السطح","International",4,4.6,2242,"8 م – 2 ص","+971 52 451 2188","إطلالة من الطابق 52 على النخلة",25.1141403,55.1394246,"ChIJfa_dsitrXz4RDt4cB_UZnVg","طاولات الإطلالة برسوم إضافية."],
-["Three Cuts x Three Sips","Palm Jumeirah","ستيك هاوس","Burgers & grills",3,4.9,2133,"12 م – منتصف الليل (الجمعة–السبت حتى 1 ص)","+971 58 698 6113","ستيك، روست يوم الأحد",25.1136455,55.1377251,"ChIJDQ5ztmtrXz4R9VZ6wO_x_Tw"],
-["Maiden Shanghai (FIVE Palm)","Palm Jumeirah","صيني","Asian",3,4.8,2305,"12:30 م – 1 ص (الأربعاء–السبت حتى 2 ص)","+971 4 455 9989","برانش Naughty Noodles الاحتفالي",25.1044294,55.1480695,"ChIJB7B030RrXz4RnDe3iSpDCs0"],
-["Hitchki","Mirdif","هندي","Indian & Pakistani",2,4.7,5395,"12 م – 11 م (الجمعة–الأحد حتى 11:30 م)","+971 4 546 4197","دجاج تشامباران، طبق الكباب، روغان جوش",25.2162488,55.4090467,"ChIJBzLQ1rphXz4RoeGvvO8liko"],
-["The Coop House","Mirdif","إيطالي","Turkish & Mediterranean",2,4.8,5646,"9 ص – 11 م (الجمعة–الأحد حتى 1 ص)","+971 4 327 5759","بيتزا، ريب آي، فطور إنجليزي",25.2149305,55.4077607,"ChIJH5U5-qZhXz4ROWiV8P01IwU"],
-["Wave","Mirdif","مطبخ عالمي","International",2,4.8,1698,"8 ص – منتصف الليل","+971 54 277 9152","تاكو الدجاج، روبيان بافلو، سلطة التمر والكيل",25.2331577,55.4312479,"ChIJWfl9arJhXz4RC7jLJAtdlG4"],
-["Room 1618","Mirdif","مقهى إيطالي","Cafés & brunch",2,4.7,1073,"7 ص – منتصف الليل","+971 56 720 7322","بيتزا مارغريتا، باستا البوراتا، بيض بنديكت",25.2226641,55.441183,"ChIJySIW0AxhXz4REM2-s87uMNM"],
-["tashas","Mirdif","مقهى","Cafés & brunch",2,4.7,2053,"9 ص – منتصف الليل (الأحد حتى 11 م)","+971 4 491 8845","توست فرنسي بالبريوش، فطور على خبز العجين المخمر",25.2229963,55.4411716,"ChIJux0Umb1hXz4RmqVn96S4-1A"],
-["Bosporus (Silicon Oasis)","Silicon Oasis","تركي","Turkish & Mediterranean",2,4.9,2365,"11 ص – 11 م","+971 4 350 9300","إسكندر كباب، أضنة كباب، بيدا بالجبن",25.1120875,55.3752857,"ChIJqZTPLj1lXz4R3Ow52jePqfU"],
-["Khobzah W Fakhaara","Silicon Oasis","شامي","Arabic & Emirati",2,4.8,3971,"12 م – منتصف الليل","+971 56 500 5516","ورق عنب بالفخارة، فريكة بالدجاج",25.1243904,55.4024562,"ChIJmxnoGnhlXz4R-m-bIjvZGrg"],
-["Little Bangkok","Silicon Oasis","تايلاندي","Asian",2,4.7,2058,"12 م – 11:30 م","+971 800 2264565","توم يام، بوفيه مفتوح في عطلة الأسبوع، بينغسو المانجو",25.1139069,55.3733314,"ChIJnUCDIURkXz4RNkrbI92Lc6s"],
-["Wills Restaurant & Cafe","Silicon Oasis","مقهى هندي وعالمي","Cafés & brunch",1,4.8,1424,"7:30 ص – منتصف الليل","+971 50 183 6615","أرز بالدجاج والزبدة، ميلك شيك الشوكولاتة",25.1246536,55.4023791,"ChIJgfl8S4BlXz4REBryNp2SI-U"],
-["Shawarma Jeddo","Silicon Oasis","شاورما لبنانية","Arabic & Emirati",1,4.7,2563,"11:30 ص – 1 ص","+971 50 213 5504","شاورما سجق، لحم ودجاج",25.1216704,55.3729294,"ChIJ17O-zsZlXz4RxyJ8I6zMPNk"],
-["Mogao Restobar","Silicon Oasis","آسيوي مدمج","Asian",2,4.6,508,"12 م – 4 ص","+971 4 554 8220","غداء عمل من 5 أطباق بـ44 درهماً",25.1188021,55.3812033,"ChIJIddEl2tlXz4RJeLgNNxzXQ0"],
-["MOLI by SHI","Dubai Hills","صيني","Asian",3,4.9,1742,"12 م – 1 ص","+971 4 276 3338","زلابية الكركند على شكل سمكة كوي، سبرنغ رول البط",25.1061083,55.2391913,"ChIJdaLbTG9pXz4R0YMlX-2f0Xk"]
+["Social House","Downtown","مطبخ عالمي","International",2,4.9,17481,"9 ص – منتصف الليل (الجمعة–الأحد حتى 1 ص)","+971 52 972 5541","بيتزا الكمأة، سمك الدنيس، ستيك؛ تراس يطل على النافورة","ChIJD5UHfYJCXz4RnIU14kEZeY4"],
+["DOORS","Downtown","تركي ومتوسطي","Turkish & Mediterranean",3,4.9,9665,"10 ص – 2 ص","+971 4 519 6000","ستيك واغيو، باستا، حلويات مع إطلالة على النافورة","ChIJ1ZaxSmRDXz4RsHWNt57cIKE"],
+["Maison De Curry","Downtown","آسيوي وعالمي","International",3,4.8,6012,"12 م – منتصف الليل (الجمعة–الأحد حتى 1 ص)","+971 52 406 6183","سلطعون بالكاري، تيراديتو السلمون","ChIJH23ZiWlpXz4RDr6Vx0oRweE","بعض المراجعين ذكروا رسوماً إضافية في الفاتورة؛ تأكد من الأسعار والرسوم عند الحجز."],
+["GIA","Downtown","إيطالي","Turkish & Mediterranean",3,4.8,10394,"10 ص – منتصف الليل (الجمعة–الأحد حتى 1 ص)","+971 4 234 9986","باستا طازجة، مأكولات بحرية، جلسات تطل على النافورة","ChIJP4pu3CloXz4RCCE2HYKmp5E"],
+["Urla Restaurant & Lounge","Downtown","تركي ومأكولات بحرية","Turkish & Mediterranean",4,4.6,3626,"3 م – 3 ص","+971 52 554 5997","مقبلات تركية، مأكولات بحرية، قائمة الغروب","ChIJ5UL06HJpXz4Rv1ucO74FSXw"],
+["Tang Town","Downtown","صيني","Asian",3,4.9,1167,"10 ص – 1 ص","+971 54 279 7287","مطبخ صيني حاصل على نجمة ميشلان؛ مكونات مستوردة من الصين","ChIJnX5G0bVpXz4RxGvyUtxIqak"],
+["The GrilllShack","Downtown","برغر ومشاوي","Burgers & grills",2,4.7,3955,"10:30 ص – منتصف الليل","+971 4 388 2382","سلايدرز الدجاج، أجنحة، دجاج مشوي","ChIJraqqPihoXz4RWvvucaai_X4"],
+["High Joint (Dubai Mall)","Downtown","برغر","Burgers & grills",2,4.7,717,"11 ص – 11 م (الجمعة–السبت حتى منتصف الليل)","+971 4 576 3640","برغر الدجاج بسلطة المانجو الحارة، برغر High Jamz","ChIJkXv3vi9pXz4RncgLFDgEhd4"],
+["Bosporus (The Beach, JBR)","Dubai Marina & JBR","تركي","Turkish & Mediterranean",2,4.9,25519,"8 ص – 12:30 ص","+971 4 380 8090","فطور السلطان، شيش طاووق، بقلاوة","ChIJBVnSqVETXz4Rf_hy98gLP0c"],
+["Hurricane's Grill & Bar","Dubai Marina & JBR","ستيك هاوس","Burgers & grills",3,4.9,17323,"11 ص – 1 ص","+971 4 386 1613","ستيك، ضلوع مشوية، بصل مقلي؛ حصص كبيرة","ChIJp750Z9wVXz4RbH8du0NzoFg"],
+["Blume Dubai Marina","Dubai Marina & JBR","مقهى وفطور تركي","Cafés & brunch",2,4.8,1091,"9 ص – منتصف الليل","+971 4 495 6888","فطور تركي، حلويات، تراس على المارينا","ChIJ4X0cJQBrXz4Rh-GINYKC8uE"],
+["ILOLI","Dubai Marina & JBR","مطبخ عالمي","International",2,4.7,1204,"11 ص – 4 ص","+971 50 707 7917","فطور، وجبة غداء العمل على ممشى المارينا","ChIJ9_shU7RrXz4RfbTOif2idgs"],
+["Ronin (FIVE LUXE JBR)","Dubai Marina & JBR","ياباني","Asian",4,4.9,2049,"6 م – 2 ص","+971 4 275 9989","واغيو، سوشي مقرمش؛ حاصل على نجمة ميشلان","ChIJPYQrCeEVXz4RB1klFLbWBLQ"],
+["ZETA Seventy Seven","Dubai Marina & JBR","مطعم على السطح","International",3,4.8,2613,"8 ص – منتصف الليل (الجمعة–السبت حتى 1 ص)","+971 4 879 8866","شاي العصر العائم؛ إطلالة من الطابق 77","ChIJ20QsyRkTXz4RuqFyobQ9_PE"],
+["TakaHisa","Bluewaters","ياباني","Asian",4,4.8,1043,"12 م – 2 ص","+971 4 556 6688","أوماكاسي، شابو شابو واغيو، كاتسو ساندو","ChIJOSl7nyQVXz4RxM7gerbeh8g"],
+["Little Lahore","JLT","باكستاني","Indian & Pakistani",2,4.4,2058,"10 ص – منتصف الليل (السبت–الأحد من 8 ص)","+971 4 441 4270","فطور ديسي، بابري تشات، دجاج هاندي","ChIJMRoMb7JsXz4RS8T66GNfgIQ"],
+["Al Safadi (Al Rigga)","Deira","لبناني","Arabic & Emirati",2,4.6,11140,"9 ص – 1 ص","+971 600 500601","حمص، كباب سيخ، شاورما","ChIJk_FT689cXz4RgmjEHf8HKms"],
+["Rayyan Mandi","Deira","يمني وعربي","Arabic & Emirati",2,4.8,9309,"11 ص – 3 ص","+971 4 224 4434","مضبي دجاج، حنيذ لحم، لقيمات","ChIJX_gAd8FdXz4RVdJN3hwojdI"],
+["Dencio's","Deira","فلبيني","Asian",2,4.8,6605,"11 ص – 1 ص (الجمعة–الأحد 10 ص – 2 ص)","+971 55 750 6329","سيسيغ، كريسبي باتا، هالو هالو","ChIJ03GQs_pdXz4RePNklWQr9Lc"],
+["Landmark Restaurant (Al Rigga)","Deira","كيرالي وفلبيني","Indian & Pakistani",1,4.6,911,"مفتوح 24 ساعة","+971 54 252 9691","وجبة السمك بالقدر الفخاري (تشاتي تشورو)، سينيغانغ","ChIJ25homExdXz4RTtvkpfzQcTY"],
+["Danial Star","Deira","بوفيه فارسي وهندي وبحري","International",2,4.5,2976,"12 م – 1 ص","+971 4 282 8942","بوفيه كبير مع إطلالة على الخور","ChIJAwBbcUVDXz4RY-taWT7fIqc"],
+["Dampa Seafood Grill","Deira","مأكولات بحرية فلبينية","Seafood",2,4.8,23695,"12 م – 11:30 م","+971 4 299 0884","سطل المأكولات البحرية بصوص الكاجون، حبار مشوي","ChIJvYwf99hcXz4Rp4ci-Nb3bxg"],
+["Calicut Paragon","Karama","كيرالي","Indian & Pakistani",2,4.5,17566,"7 ص – 12:30 ص","+971 4 335 8700","برياني دجاج، كاري السمك بالمانجو، بروتا","ChIJM8Dx5b9DXz4RK7vZ7UEKJbg"],
+["Amritsr","Karama","هندي شمالي","Indian & Pakistani",2,4.5,6851,"مفتوح 24 ساعة","+971 4 327 8622","دجاج بالزبدة، خبز نان، ربري؛ الفطور من 15 درهماً","ChIJhQKYEs5DXz4RlCzY1nudp4s"],
+["Kudla House","Karama","منغلوري","Indian & Pakistani",1,4.7,325,"12 م – منتصف الليل","+971 4 552 8462","روبيان غي روست، كنعد على الصاج، نير دوسا","ChIJV6Uvy2pDXz4Ra5_ALWpxrSM"],
+["Plantain Leaf","Karama","أندرا","Indian & Pakistani",1,4.6,253,"11:30 ص – 11:30 م","+971 4 257 8984","وجبات أندرا، برياني لحم حيدر أبادي","ChIJNdypUwBDXz4RZeo5ZLUHFkw"],
+["BARAAK","Karama","هندي عربي مدمج","Indian & Pakistani",2,4.6,1424,"11 ص – 3 ص","+971 50 561 2345","مضبي دجاج، كوثو بروتا، كنافة برج","ChIJP-lwcABDXz4RitQoIYRT7_E","المراجعات الأخيرة متباينة حول جودة الطعام."],
+["ChaCha Lahori","Karama","باكستاني","Indian & Pakistani",1,4.4,1674,"7 ص – 2 ص","+971 50 538 1399","فطور لاهوري، باية لحم، خبز كلتشا","ChIJYceGKZxDXz4R3gPPzp_qIB4"],
+["Sallet Al Sayad","Karama","مأكولات بحرية","Seafood",2,4.9,16509,"12 م – منتصف الليل","+971 4 335 5722","هامور، سمك النهاش الأحمر، روبيان جامبو","ChIJ3SEyBtBCXz4Rdzj4zKqRLB8"],
+["De Fish","Karama","مأكولات بحرية كيرالية","Seafood",2,4.7,19104,"11 ص – 1 ص","+971 4 379 5638","سادية المأكولات البحرية، دنيس مشوي، كاري السلطعون","ChIJbzPE0kxDXz4Rtr-eWoQ6r3k"],
+["Gul Khan","Oud Metha","باكستاني وأفغاني","Indian & Pakistani",2,4.4,3160,"11:30 ص – منتصف الليل","+971 56 388 4875","نالي تشابلي كباب، مشاوي مشكلة، ربري","ChIJ50tGqHhDXz4Ra_zsnsXWwEw"],
+["Mogiya","Umm Hurair","ياباني","Asian",2,4.8,4136,"12 م – منتصف الليل","+971 58 578 2579","عرض السوشي المفتوح، رامن ميسو حار، واغيو A5","ChIJ1w_wNMtDXz4R2gpcqAlfASY"],
+["Al Khayma Heritage Restaurant","Al Fahidi","إماراتي","Arabic & Emirati",2,4.9,18590,"8 ص – 11 م","+971 55 180 2080","طبق المشاوي المشكلة، برياني لحم، جلسات في الفناء","ChIJl6Wlj3JDXz4RiuVGW1AttdY"],
+["Arabian Tea House (Al Fahidi)","Al Fahidi","إماراتي ومقهى","Arabic & Emirati",2,4.8,20086,"7 ص – 11 م","+971 4 353 5071","فطور عربي، مشاوي مشكلة، الشاي الخاص","ChIJsSfTxjlDXz4RDIGbnFqsAlo"],
+["Al Bait Al Qadeem","Al Ras","إماراتي وإيراني","Arabic & Emirati",2,4.5,1547,"8 ص – 10 م","+971 4 225 6111","برياني روبيان، سمك مشوي؛ حصص كبيرة","ChIJM3jZ0kZDXz4R0HPlnOUziCs"],
+["Al Fanar (Al Seef)","Al Seef","مأكولات بحرية إماراتية","Arabic & Emirati",2,4.7,6189,"10 ص – 10:30 م","+971 4 396 6669","شوربة المأكولات البحرية، حلويات إماراتية؛ مدرج في دليل ميشلان","ChIJGw72pFJDXz4R9nv8Knn8TWA"],
+["Tent Jumeirah (Al Seef)","Al Seef","عربي","Arabic & Emirati",2,4.5,871,"10 ص – 10 م (السبت–الأحد حتى 11 م)","+971 52 214 3703","تكا، شاورما دجاج، كرك على الخور","ChIJk8g5PFFDXz4Rbui--UfWrJk"],
+["Skafos","Al Seef","متوسطي","Turkish & Mediterranean",2,4.7,2796,"5 م – 1 ص","+971 58 200 5850","طبق اللحوم المشكلة، كفتة اللحم بالطماطم، روبيان مشوي","ChIJd8luc31DXz4Ry9lMtqshw7k"],
+["Creek City Restaurant","Bur Dubai","تركي وباكستاني","Indian & Pakistani",2,4.8,1720,"10 ص – 1 ص","+971 50 360 2599","بولاو لحم، دجاج على الفحم؛ إطلالة على الخور","ChIJ_WASaHBDXz4Ryp_3gLH5kt8"],
+["Al Fanar (Festival City)","Festival City","إماراتي","Arabic & Emirati",2,4.6,9167,"9 ص – 10 م","+971 4 232 9966","جرجور مقلي، طبق المأكولات البحرية الإماراتي","ChIJad3dmXtdXz4RZMX_GHSG81k"],
+["Arabian Tea House (Jumeirah)","Jumeirah","إماراتي ومقهى","Arabic & Emirati",2,4.9,8571,"7 ص – 11 م","+971 4 298 4559","حمص، فلافل، فطور مصري","ChIJheuNzt9DXz4ROvCXu-iJrNs"],
+["Roasters Specialty Coffee (Al Wasl)","Jumeirah","قهوة مختصة وفطور","Cafés & brunch",2,4.8,3107,"9 ص – 10 م (الجمعة–الأحد حتى منتصف الليل)","+971 4 548 0707","قهوة محمصة في المكان، سطح بإطلالة على الأفق","ChIJQboZtNhfXz4RFvKQyydmFDg"],
+["Late Lounge","Jumeirah","مقهى وفطور","Cafés & brunch",2,4.8,4618,"8 ص – منتصف الليل (الخميس–السبت حتى 2 ص)","+971 50 771 9938","بيض بنديكت بالسلمون، ديرتي إسبريسو","ChIJm9ICLvpDXz4RNwBQmCWeIHk"],
+["Sla Cafe","Jumeirah","مقهى","Cafés & brunch",2,4.7,959,"7 ص – 1:30 ص","+971 4 286 7136","لاتيه التيراميسو، فطور متأخر","ChIJfUD46uNDXz4RJPsPCAfHfI0"],
+["Ores","Jumeirah","مقهى","Cafés & brunch",2,4.7,1058,"8 ص – 2 ص (السبت–الأحد حتى 3 ص)","+971 50 945 4111","سلطة الكيل بالفواكه، حلويات مقدمة بعناية","ChIJh_3J4UNDXz4Rk_Q7lARKhYY"],
+["Karachi Grill","Jumeirah","باكستاني","Indian & Pakistani",2,4.7,12896,"11 ص – 2 ص (الجمعة–الأحد حتى 3 ص)","+971 4 344 7000","بوفيه الغداء، تشيز بوتي، ملاي تكا","ChIJ5_QcLxRCXz4RY-FSCC1U6kc"],
+["FLAVE by Chef Wali","Jumeirah","برغر","Burgers & grills",2,4.9,7335,"11 ص – 3 ص","+971 52 738 2486","برغر بيليونير، سلطة الذرة، أجنحة","ChIJr3PsY9hDXz4R1JWWr2On56U"],
+["BordoMavi Seafood","Jumeirah","مأكولات بحرية تركية","Seafood",3,4.7,1056,"12 م – 11:30 م","+971 56 508 5002","سمك طازج، خبز يُخبز في المطعم","ChIJwxJaOsFDXz4Rrn-zGQ5fy8s"],
+["Allo Beirut (City Walk)","City Walk","لبناني","Arabic & Emirati",2,4.6,11786,"8 ص – منتصف الليل","+971 800 86234788","مشاوي مشكلة، حمص، شاورما","ChIJ8V5J9rxDXz4Rvs86mFM45fA"],
+["Sardina Seafood","Umm Suqeim","مأكولات بحرية","Seafood",2,4.9,5859,"12 م – 11 م (الخميس–السبت حتى منتصف الليل)","+971 4 339 0444","مأكولات بحرية بالكيلو، بياح مقلي، باستا المحار","ChIJAcE59ABCXz4R6R6oVPz1NB8"],
+["Eleven Green","Umm Suqeim","برغر","Burgers & grills",2,4.4,3288,"12:30 م – 1 ص (الجمعة–السبت حتى 2 ص)","","سماش برغر، بطاطس حارة","ChIJd2cT4b9rXz4RxgcS-k-KMMA"],
+["Hot Bowl","Satwa","فلبيني","Asian",1,4.9,1141,"11 ص – 1 ص","+971 50 712 2808","أسياخ مشوية، إيساو، طبق مأكولات بحرية، هالو هالو","ChIJFRVhHwBDXz4RPufR2YRBPx8"],
+["Kanto Grilled","Satwa","مشاوي فلبينية","Asian",1,4.8,700,"6 ص – 1:30 ص","+971 50 274 2213","مشاوي فلبينية","ChIJo6WlJvdDXz4R2V0T7sZU3fY"],
+["Moonrise","Satwa","قائمة تذوق للشيف","International",4,4.8,388,"الثلاثاء–السبت 6 م – 11:30 م","+971 50 697 2946","قائمة تذوق من 8 أطباق حول منضدة تتسع لـ15 شخصاً","ChIJS6LLvexDXz4RUPTv3HNI7Pc","احجز مسبقاً؛ المقاعد محدودة ويبدأ التقديم للجميع في وقت واحد."],
+["Shawarma AlFarooj","Trade Centre","شاورما","Arabic & Emirati",1,4.4,2237,"12 م – 5 ص","+971 4 335 5723","شاورما لحم بخبز الصاج","ChIJe5NHlU1DXz4RSn3yD-OwNoE"],
+["Bombay Borough","DIFC","هندي عصري","Indian & Pakistani",3,4.8,10130,"12 م – منتصف الليل (الجمعة حتى 1 ص)","+971 54 995 8296","برانش نهاية الأسبوع، بانير تكا مارواري، برياني","ChIJjxN4B_tDXz4RLrBrwzc9Qew"],
+["UCHI","DIFC","إيزاكايا يابانية","Asian",3,4.8,476,"12 م – 1 ص (الخميس–السبت حتى 2 ص)","+971 4 298 5044","سوشي، قائمة ساكي","ChIJtQHLct9DXz4R7EkzLwRDU3E"],
+["Sansation","DIFC","متوسطي","Turkish & Mediterranean",2,4.9,2450,"9 ص – 2:30 ص","+971 4 349 3518","أرز أصفر باللحم على طريقة المقلوبة، لفائف","ChIJE5mdEgBDXz4RvJ2bXPutUVc"],
+["Jospereno Steakhouse","DIFC","ستيك هاوس","Burgers & grills",2,4.8,3722,"11 ص – 1 ص","+971 52 420 6404","طبق ريب آي كيلو مع أرز (199 درهماً)، نخاع العظم","ChIJDzeeUH1DXz4RoldvY_YTJ8M"],
+["ZEA","DIFC","مطبخ مدمج","International",3,4.9,583,"الثلاثاء–الأحد من 5 م (الأحد من 3 م)","+971 56 402 6633","عشاء متأخر؛ تراس يطل على برج خليفة","ChIJe0d-1CtDXz4R5OJ3ltO3abM"],
+["Hutong","DIFC","صيني شمالي","Asian",4,4.7,1781,"12 م – 3:30 م، 6 م – منتصف الليل","+971 4 220 0868","بط بكين، ديم سوم","ChIJW59ATBlDXz4RAT7XiQ1g7NU"],
+["MaKiRa","DIFC","رامن ياباني","Asian",2,4.8,1925,"الأحد–الثلاثاء 6 م – 11 م","+971 4 317 4515","رامن شو، غداء العمل (رامن ونصف لفافة)","ChIJGee24n5DXz4RJzR2eqWvJhU","يظهر في Google أن أيام العمل محدودة؛ اتصل قبل الزيارة."],
+["Manna Smash Burgers","DIFC","برغر","Burgers & grills",2,5.0,103,"10 ص – 10 م (الجمعة–السبت حتى منتصف الليل)","+971 56 429 6007","سماش برغر","ChIJF3-muTNDXz4RpNs2seaMozw"],
+["Vyne Restaurant","Business Bay","بوفيه متوسطي","Turkish & Mediterranean",2,4.9,4521,"6:30 ص – 10:30 م","+971 4 815 3002","بوفيه الفطور، محطة باستا حية","ChIJE1bSVUtpXz4RkJxGOHkTKVY"],
+["Soul Kitchen","Business Bay","لبناني ولاتيني مدمج","International",3,4.6,1035,"الثلاثاء–السبت من 6 م","+971 4 836 0900","حمص بالتشيميتشوري، أريباس واغيو","ChIJv9a9h41pXz4RujsiLoD5P6s"],
+["Batliwala & Co.","Business Bay","بارسي وأكلات شوارع مومباي","Indian & Pakistani",2,4.7,744,"11 ص – 2 ص","+971 50 272 8727","دانساك، بولاو التوت، غولا كالا خاتا","ChIJ8X8W8OBpXz4R9N-ZCRcEViY"],
+["TABŪ","Business Bay","مطبخ آسيوي وصالة","Asian",3,4.6,1057,"الإثنين–السبت 6 م – 1 ص","+971 4 512 5555","تمبورا؛ أمسيات مع دي جي","ChIJgw4-JltpXz4RVXCm-O7aulU"],
+["OCCO (Business Bay)","Business Bay","مطبخ عالمي","International",2,4.8,761,"7 ص – 3 ص","+971 56 430 5280","لفافة السلمون، شيشة، تراس يطل على القناة","ChIJj3tOVlRpXz4RXeRJ3OxZBS4"],
+["Al Mashawi Al Halabya","Al Barsha","مشاوي سورية","Arabic & Emirati",2,4.8,33814,"8 ص – 3 ص","+971 600 586666","مشاوي مشكلة، دجاج على الفحم، كنافة بالجبن","ChIJOYyRllZrXz4RFZ_i6EMfZoE"],
+["Shawarmary","Al Barsha","شاورما","Arabic & Emirati",1,4.6,4316,"12 م – 3 ص (الخميس–الأحد حتى 4 ص)","+971 4 575 3628","تشيكاري، بوكس صاج عربي، عصير طازج","ChIJ_3YGDhVrXz4RrH1n48QnKPs"],
+["Allo Beirut (Hessa St)","Al Barsha","لبناني","Arabic & Emirati",2,4.4,10797,"9 ص – 3:30 ص","+971 800 86234788","فطور لبناني، حلاوة الجبن","ChIJgTwUDYFrXz4RG32ONXOL1zg"],
+["Lola Taberna Española","Barsha Heights","إسباني","Turkish & Mediterranean",3,4.8,4474,"1 م – 1 ص","+971 4 247 6688","روبيان بالثوم، باتاتاس برافاس، باييلا المأكولات البحرية","ChIJdcx38c9rXz4RKtHRjWyyhek"],
+["Meat & Mackerel","Barsha Heights","كيرالي مدمج","Indian & Pakistani",2,4.8,4885,"11 ص – 11:30 م","+971 50 595 2269","ستيك لحم تيليتشيري، توست فرنسي بالتيراميسو","ChIJz8tuPABrXz4RBQaCL0aiNSY"],
+["XU (Kempinski MoE)","Al Barsha","كانتوني","Asian",3,4.9,1123,"12 م – 4 م، 6 م – 1 ص","+971 4 394 6252","سمك القد الأسود بفلفل سيتشوان، لحم بالفلفل الأسود","ChIJXccJWJxrXz4RGxapGB_sHJI"],
+["Korma Sutra","Al Barsha","مقهى ومطعم هندي","Indian & Pakistani",2,4.8,1402,"12 م – 2 ص (الجمعة–السبت حتى 3 ص)","+971 58 509 7219","مقبلات البانير، كرك، براوني على الصاج","ChIJIRBOZZlrXz4R3h5-WBDz9G0"],
+["Burns Road","Al Barsha South","أكلات شوارع باكستانية","Indian & Pakistani",2,4.7,3126,"8:30 ص – منتصف الليل (الجمعة–السبت حتى 1 ص)","+971 54 266 8006","بن كباب، رول بالشطني، كراهي","ChIJY9cUEABvXz4RWeuy_IFE5fw"],
+["Praia (FIVE Palm)","Palm Jumeirah","مطعم شاطئي","Seafood",3,4.9,3981,"11 ص – 3 ص","+971 58 869 8996","سمك مشوي، أسياخ السلمون، برغر واغيو","ChIJ0XGIejdrXz4Ri_hDwHgpzp4"],
+["Above Eleven","Palm Jumeirah","بيروفي ياباني","Asian",3,4.8,1028,"5 م – 1 ص (الجمعة–السبت حتى 2 ص)","+971 4 666 1420","باقة السوشي عند الغروب، سطح مفتوح","ChIJz0NTDblrXz4R5nlONTqMt3I"],
+["CouCou","Palm Jumeirah","مطعم على السطح","International",4,4.6,2242,"8 م – 2 ص","+971 52 451 2188","إطلالة من الطابق 52 على النخلة","ChIJfa_dsitrXz4RDt4cB_UZnVg","طاولات الإطلالة برسوم إضافية."],
+["Three Cuts x Three Sips","Palm Jumeirah","ستيك هاوس","Burgers & grills",3,4.9,2133,"12 م – منتصف الليل (الجمعة–السبت حتى 1 ص)","+971 58 698 6113","ستيك، روست يوم الأحد","ChIJDQ5ztmtrXz4R9VZ6wO_x_Tw"],
+["Maiden Shanghai (FIVE Palm)","Palm Jumeirah","صيني","Asian",3,4.8,2305,"12:30 م – 1 ص (الأربعاء–السبت حتى 2 ص)","+971 4 455 9989","برانش Naughty Noodles الاحتفالي","ChIJB7B030RrXz4RnDe3iSpDCs0"],
+["Hitchki","Mirdif","هندي","Indian & Pakistani",2,4.7,5395,"12 م – 11 م (الجمعة–الأحد حتى 11:30 م)","+971 4 546 4197","دجاج تشامباران، طبق الكباب، روغان جوش","ChIJBzLQ1rphXz4RoeGvvO8liko"],
+["The Coop House","Mirdif","إيطالي","Turkish & Mediterranean",2,4.8,5646,"9 ص – 11 م (الجمعة–الأحد حتى 1 ص)","+971 4 327 5759","بيتزا، ريب آي، فطور إنجليزي","ChIJH5U5-qZhXz4ROWiV8P01IwU"],
+["Wave","Mirdif","مطبخ عالمي","International",2,4.8,1698,"8 ص – منتصف الليل","+971 54 277 9152","تاكو الدجاج، روبيان بافلو، سلطة التمر والكيل","ChIJWfl9arJhXz4RC7jLJAtdlG4"],
+["Room 1618","Mirdif","مقهى إيطالي","Cafés & brunch",2,4.7,1073,"7 ص – منتصف الليل","+971 56 720 7322","بيتزا مارغريتا، باستا البوراتا، بيض بنديكت","ChIJySIW0AxhXz4REM2-s87uMNM"],
+["tashas","Mirdif","مقهى","Cafés & brunch",2,4.7,2053,"9 ص – منتصف الليل (الأحد حتى 11 م)","+971 4 491 8845","توست فرنسي بالبريوش، فطور على خبز العجين المخمر","ChIJux0Umb1hXz4RmqVn96S4-1A"],
+["Bosporus (Silicon Oasis)","Silicon Oasis","تركي","Turkish & Mediterranean",2,4.9,2365,"11 ص – 11 م","+971 4 350 9300","إسكندر كباب، أضنة كباب، بيدا بالجبن","ChIJqZTPLj1lXz4R3Ow52jePqfU"],
+["Khobzah W Fakhaara","Silicon Oasis","شامي","Arabic & Emirati",2,4.8,3971,"12 م – منتصف الليل","+971 56 500 5516","ورق عنب بالفخارة، فريكة بالدجاج","ChIJmxnoGnhlXz4R-m-bIjvZGrg"],
+["Little Bangkok","Silicon Oasis","تايلاندي","Asian",2,4.7,2058,"12 م – 11:30 م","+971 800 2264565","توم يام، بوفيه مفتوح في عطلة الأسبوع، بينغسو المانجو","ChIJnUCDIURkXz4RNkrbI92Lc6s"],
+["Wills Restaurant & Cafe","Silicon Oasis","مقهى هندي وعالمي","Cafés & brunch",1,4.8,1424,"7:30 ص – منتصف الليل","+971 50 183 6615","أرز بالدجاج والزبدة، ميلك شيك الشوكولاتة","ChIJgfl8S4BlXz4REBryNp2SI-U"],
+["Shawarma Jeddo","Silicon Oasis","شاورما لبنانية","Arabic & Emirati",1,4.7,2563,"11:30 ص – 1 ص","+971 50 213 5504","شاورما سجق، لحم ودجاج","ChIJ17O-zsZlXz4RxyJ8I6zMPNk"],
+["Mogao Restobar","Silicon Oasis","آسيوي مدمج","Asian",2,4.6,508,"12 م – 4 ص","+971 4 554 8220","غداء عمل من 5 أطباق بـ44 درهماً","ChIJIddEl2tlXz4RJeLgNNxzXQ0"],
+["MOLI by SHI","Dubai Hills","صيني","Asian",3,4.9,1742,"12 م – 1 ص","+971 4 276 3338","زلابية الكركند على شكل سمكة كوي، سبرنغ رول البط","ChIJdaLbTG9pXz4R0YMlX-2f0Xk"]
 ];
 // English details, same order as D: [cuisine, hours, mustTry, note]
 const EN=[
@@ -441,7 +444,7 @@ en:{
 };
 
 const T={
-ar:{brand:"دليل مطاعم دبي",navList:"أضف مطعمك",lang:"English",eyebrow:"دبي · دليل المطاعم",h1:'أين تأكل في <span>دبي</span>',
+ar:{gattr:"التقييمات وعدد المراجعات وساعات العمل من خرائط Google (Powered by Google)، بتاريخ 28 أكتوبر 2026.",onGoogle:"على Google",brand:"دليل مطاعم دبي",navList:"أضف مطعمك",lang:"English",eyebrow:"دبي · دليل المطاعم",h1:'أين تأكل في <span>دبي</span>',
 lede:"مطاعم في مختلف أحياء دبي، من مطاعم البرياني في الكرامة إلى المطاعم الحاصلة على نجمة ميشلان. لكل مطعم تقييمه على Google، وساعات العمل، وأشهر الأطباق، وطريقة الوصول، وروابط مباشرة للاتجاهات وقائمة الطعام.",
 lSearch:"بحث",ph:"اسم المطعم أو الطبق أو نوع المطبخ، مثل: برياني، سوشي",lArea:"المنطقة",lGroup:"نوع الطعام",lMin:"أقل تقييم",lSort:"الترتيب حسب",lBudget:"الميزانية",
 allAreas:"كل المناطق",allGroups:"كل الأنواع",any:"الكل",plus:" فأكثر",sRating:"التقييم",sReviews:"الأكثر مراجعات",sCheap:"السعر: من الأقل",sName:"الاسم",
@@ -457,7 +460,7 @@ planOpts:["الأساسي (مجاناً)","موثّق – 199 درهم","ممي�
 msgHead:"طلب إدراج مطعم – دليل مطاعم دبي",mName:"المطعم",mArea:"المنطقة",mPerson:"المسؤول",mPhone:"الهاتف",mPlan:"الباقة",mMsg:"الرسالة",
 foot1:"التقييمات وعدد المراجعات وساعات العمل وأرقام الهواتف مأخوذة من خرائط Google بتاريخ 28 أكتوبر 2026. هذه البيانات تتغير باستمرار، لذا راجع صفحة المطعم على Google قبل الزيارة.",
 foot2:"تكلفة الشخصين تقديرية بناءً على مستوى السعر في Google، ولا تشمل المشروبات. للاستفسارات التجارية: iamaffanalikhan2017@gmail.com أو ‎+971 52 756 7142."},
-en:{brand:"Dubai Eats Atlas",navList:"List your restaurant",lang:"عربي",eyebrow:"Dubai · Restaurant guide",h1:'Where to eat in <span>Dubai</span>',
+en:{gattr:"Ratings, review counts and opening hours: Google Maps (Powered by Google), as of 28 October 2026.",onGoogle:"on Google",brand:"Dubai Eats Atlas",navList:"List your restaurant",lang:"عربي",eyebrow:"Dubai · Restaurant guide",h1:'Where to eat in <span>Dubai</span>',
 lede:"Restaurants across Dubai's neighbourhoods, from Karama biryani spots to Michelin-listed dining. Each listing has its Google rating, opening hours, what to order, how to get there, and direct links to directions and the menu.",
 lSearch:"Search",ph:"Name, dish or cuisine, e.g. biryani, sushi",lArea:"Area",lGroup:"Food type",lMin:"Min rating",lSort:"Sort by",lBudget:"Budget",
 allAreas:"All areas",allGroups:"All food types",any:"Any",plus:"+",sRating:"Rating",sReviews:"Most reviewed",sCheap:"Budget: low to high",sName:"Name A–Z",
@@ -476,7 +479,7 @@ foot2:"Cost for two is an estimate based on Google's price level, before drinks.
 };
 
 const WA="971527567142";
-const places=D.map((r,i)=>({name:r[0],area:r[1],cuisineAr:r[2],group:r[3],tier:r[4],rating:r[5],reviews:r[6],hoursAr:r[7],phone:r[8],mustAr:r[9],lat:r[10],lng:r[11],id:r[12],noteAr:r[13]||"",cuisineEn:EN[i][0],hoursEn:EN[i][1],mustEn:EN[i][2],noteEn:EN[i][3]||""}));
+const places=D.map((r,i)=>({name:r[0],area:r[1],cuisineAr:r[2],group:r[3],tier:r[4],rating:r[5],reviews:r[6],hoursAr:r[7],phone:r[8],mustAr:r[9],id:r[10],noteAr:r[11]||"",cuisineEn:EN[i][0],hoursEn:EN[i][1],mustEn:EN[i][2],noteEn:EN[i][3]||""}));
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const uniq=a=>[...new Set(a)];
@@ -510,12 +513,12 @@ function applyLang(){
 function card(p){
   const t=T[L], ar=L==="ar";
   const maps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" Dubai")}&query_place_id=${p.id}`;
-  const dir=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_id=${p.id}`;
+  const dir=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.name+" Dubai")}&destination_place_id=${p.id}`;
   const menu=`https://www.google.com/search?q=${encodeURIComponent(p.name+" "+p.area+" Dubai menu")}`;
   const note=ar?p.noteAr:p.noteEn;
   return `<article class="card">
     <div class="card-head"><div><h2><bdi>${esc(p.name)}</bdi></h2><div class="meta">${esc(areaName(p.area))} · ${esc(ar?p.cuisineAr:p.cuisineEn)}</div></div>
-    <div class="score"><b>${p.rating.toFixed(1)}</b> <span class="star" aria-hidden="true">★</span><small>${p.reviews.toLocaleString("en")} ${t.reviews}</small></div></div>
+    <div class="score"><b>${p.rating.toFixed(1)}</b> <span class="star" aria-hidden="true">★</span><small>${p.reviews.toLocaleString("en")} ${t.reviews}</small><small class="gsrc">${t.onGoogle}</small></div></div>
     <div class="tags"><span class="tag price">${t.tiers[p.tier][0]}</span><span class="tag">${esc(groupName(p.group))}</span></div>
     <dl>
       <dt>${t.dOrder}</dt><dd>${esc(ar?p.mustAr:p.mustEn)}</dd>
