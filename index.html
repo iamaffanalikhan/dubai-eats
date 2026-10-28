@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="ar">
+<html lang="ar" translate="no">
 <head>
 <meta charset="utf-8">
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="دليل مطاعم دبي بالعربية والإنجليزية: التقييمات وساعات العمل وأشهر الأطباق وطريقة الوصول | Bilingual Dubai restaurant guide with ratings, hours, dishes and directions.">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -110,7 +111,7 @@ footer p{max-width:75ch;margin:.4em 0}
 </head>
 <body>
 
-<div id="app" lang="ar" dir="rtl">
+<div id="app" lang="ar" dir="rtl" translate="no" class="notranslate">
 <div class="wrap topnav">
   <div class="brand" data-t="brand"></div>
   <div class="navlinks">
@@ -480,7 +481,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const uniq=a=>[...new Set(a)];
 const app=$("#app");
-let L="ar";
+let L=((navigator.languages&&navigator.languages[0])||navigator.language||"en").toLowerCase().startsWith("ar")?"ar":"en";
 try{const s=localStorage.getItem("dea-lang");if(s==="en"||s==="ar")L=s}catch(e){}
 const areaName=a=>L==="ar"?AREA_AR[a]:a, groupName=g=>L==="ar"?GROUP_AR[g]:g;
 const tierSel=new Set();
@@ -488,7 +489,7 @@ const tierSel=new Set();
 function fillSelect(el,opts){const v=el.value;el.innerHTML=opts.map(([val,lab])=>`<option value="${esc(val)}">${esc(lab)}</option>`).join("");if([...el.options].some(o=>o.value===v))el.value=v}
 function applyLang(){
   const t=T[L];
-  app.lang=L;app.dir=L==="ar"?"rtl":"ltr";document.documentElement.lang=L;
+  app.lang=L;app.dir=L==="ar"?"rtl":"ltr";document.documentElement.lang=L;document.documentElement.setAttribute("translate","no");
   document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t[el.dataset.t]});
   document.querySelectorAll("[data-th]").forEach(el=>{el.innerHTML=t[el.dataset.th]});
   $("#langbtn").textContent=t.lang;
